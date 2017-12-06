@@ -6,8 +6,6 @@
 
 
 typedef void(*ProcFinishedCallback)(void * userdata);
-typedef void(*StdOutReadyCallback)(void * userdata);
-typedef void(*StdErrReadyCallback)(void * userdata);
 
 class WinProcess
 {
@@ -15,20 +13,17 @@ public:
 	WinProcess();
 	virtual ~WinProcess();
 
-	int start(const char * cmd);
+	int start(const char *cmdline);
+	void wait();
 	int stop();
 	bool isRunning();
+	int exec(const char *cmdline);
 	
-	int readStandardOuptut(char * data, int len);
-	int readStandardError(char * data, int len);
-	void wait();
+	int readStandardOuptut(char *data, int len);
+	int readStandardError(char *data, int len);
+
 
 	void setProcFinishedCallback(ProcFinishedCallback cb, void *userdata);
-	void setStdOutReadyCallback(StdOutReadyCallback cb, void * userdata);
-	void setStdErrReadyCallback(StdErrReadyCallback cb, void * userdata);
-
-private:
-	void loop();
 
 private:
 	HANDLE m_hStdOutPipeRead;
@@ -36,19 +31,7 @@ private:
 	HANDLE m_hStdErrPipeRead;
 	HANDLE m_hStdErrPipeWrite;
 	PROCESS_INFORMATION m_hProcInfo;
-
-	char * m_strCmdLine;
-
 	ProcFinishedCallback onFinishedCallback;
 	void * m_pProcFinishUserdata;
-
-	StdOutReadyCallback onStdOutReadyCallback;
-	void * m_pStdOutUserdata;
-
-	StdErrReadyCallback onStdErrReadyCallback;
-	void * m_pStdErrUserdata;
-
-	std::thread m_LoopThread;
-	bool m_bKeepRunning;
 };
 
